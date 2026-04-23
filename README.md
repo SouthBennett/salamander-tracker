@@ -10,4 +10,9 @@ This project focuses on building a responsive user-friendly interface that commu
 
 ## 🎯 Purpose
 
-
+<p align="center">
+  <img src="/public/Home-Video-page.png" width="800" />
+</p>
+<p align="center">
+  <img src="/public/Video-detection-page.png" width="800" />
+</p>
