@@ -30,10 +30,10 @@ The goal of this project is to
 ## Project Board
 
 <p align="center">
-  <img src="/public/Home-Video-page.png" width="800" />
+  <img src="wireFrames/Home-Video-page.png" width="800" />
 </p>
 <p align="center">
-  <img src="/public/Video-detection-page.png" width="800" />
+  <img src="wireFrames/Video-detection-page.png" width="800" />
 </p>
 
 ---
