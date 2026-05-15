@@ -30,13 +30,27 @@ export default function Video(){
     }
     return(
         
-            <div>
-                <h1>Available videos</h1>
-                    <ul>
+            <div className="space-y-6">
+                <h1 className="text-3xl font-bold">
+                    Available videos
+                </h1>
+                    <ul className="space-y-4">
                         {videos.map((filename) => (
                             <li key={filename}>
-                                <Link to={`/preview/${filename}`}>{filename}</Link>
-                                </li>
+                                <Link 
+                                    to={`/preview/${filename}`}
+                                    className="
+                                    block
+                                    bg-zinc-800
+                                    hover:bg-zinc-700
+                                    p-4
+                                    rounded-xl
+                                    transition-colors
+                                    "
+                                >
+                                    {filename}
+                                </Link>
+                            </li>
                         ))}
                     </ul>
             </div>
