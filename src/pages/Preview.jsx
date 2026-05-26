@@ -1,7 +1,34 @@
 import { Link, useParams } from 'react-router-dom';
+import { getThumbnail } from '../mockApi.js';
+import {useEffect, useState } from 'react';
 
 export default function Preview() {
   const { filename } = useParams();
+
+  const [thumbnail, setThumbnail] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    getThumbnail(filename)
+      .then((url) => {
+        setThumbnail(url);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [filename])
+
+  if (loading) {
+    return(
+      <p>Loading thumbnail...</p>
+    )
+  }
+  if (error) {
+    return <p>Could not load thumbnail: {error}</p>
+  }
 
   return (
   <div className="space-y-6">
@@ -14,6 +41,18 @@ export default function Preview() {
         Thumbnail and tuning controls will go here in a future
         pair program.
       </p>
+
+      <img 
+        src={thumbnail} 
+        alt={filename}
+        className="
+          mt-6
+          rounded-xl
+          border
+          border-zinc-700
+        "
+      />
+      <p>{thumbnail}</p>
     </div>
 
     <Link
