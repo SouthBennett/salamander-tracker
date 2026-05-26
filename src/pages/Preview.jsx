@@ -8,6 +8,8 @@ export default function Preview() {
   const [thumbnail, setThumbnail] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [color, setColor] = useState("#ff0000");
+  const [tolerance, setTolerance] = useState(75);
 
   useEffect(() => {
     getThumbnail(filename)
@@ -37,10 +39,29 @@ export default function Preview() {
         Preview: {filename}
       </h1>
 
-      <p className="text-zinc-300">
+      {/* <p className="text-zinc-300">
         Thumbnail and tuning controls will go here in a future
         pair program.
-      </p>
+      </p> */}
+
+      <div className="flex items-center gap-6 mt-6">
+
+        <div className="flex items-center gap-2">
+          <label>Tolerance</label>
+
+          <input 
+            type="range" 
+            min="0"
+            max="100"
+            value={tolerance}
+            onChange={(e) => {
+              console.log(e.target.value)
+              setTolerance(e.target.value)}}
+          />
+          <span>{tolerance}</span>
+        </div>
+         
+      </div>
 
       <img 
         src={thumbnail} 
