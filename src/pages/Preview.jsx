@@ -8,7 +8,7 @@ export default function Preview() {
   const [thumbnail, setThumbnail] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [color, setColor] = useState("#ff0000");
+  const [targetColor, setTargetColor] = useState("#ff0000");
   const [tolerance, setTolerance] = useState(75);
 
   useEffect(() => {
@@ -47,18 +47,34 @@ export default function Preview() {
       <div className="flex items-center gap-6 mt-6">
 
         <div className="flex items-center gap-2">
-          <label>Tolerance</label>
+          <div>
+            <label>Target Color</label>
+            
+            <input 
+              type="color" 
+              value={targetColor}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setTargetColor(e.target.value);
+              }}
+            />
+            <span>{targetColor}</span>
+          </div>
+          
+          <div>
+            <label>Tolerance</label>
 
-          <input 
-            type="range" 
-            min="0"
-            max="100"
-            value={tolerance}
-            onChange={(e) => {
-              console.log(e.target.value)
-              setTolerance(e.target.value)}}
-          />
-          <span>{tolerance}</span>
+            <input 
+              type="range" 
+              min="0"
+              max="100"
+              value={tolerance}
+              onChange={(e) => {
+                console.log(e.target.value)
+                setTolerance(e.target.value)}}
+            />
+            <span>{tolerance}</span>
+          </div>
         </div>
          
       </div>
