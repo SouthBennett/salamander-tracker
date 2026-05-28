@@ -1,11 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
 import { getThumbnail } from '../mockApi.js';
-import {useEffect, useState } from 'react';
+import {useEffect, useState , useRef} from 'react';
 
 export default function Preview() {
   const { filename } = useParams();
 
   const [thumbnail, setThumbnail] = useState("");
+  const canvasRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [targetColor, setTargetColor] = useState("#ff0000");
@@ -79,18 +80,22 @@ export default function Preview() {
          
       </div>
 
-      <img 
-        src={thumbnail} 
-        alt={filename}
-        className="
-          mt-6
-          rounded-xl
-          border
-          border-zinc-700
-        "
-      />
+      <div className='flex row' >
+        <img 
+          src={thumbnail} 
+          alt={filename}
+          className="
+            mt-6
+            rounded-xl
+            border
+            border-zinc-700
+          "
+        />
+        <canvas ref={canvasRef} className=' border 1px solid mt-6 rounded-xl' />
+      </div>
       <p>{thumbnail}</p>
     </div>
+    
 
     <Link
       to="/videos"
