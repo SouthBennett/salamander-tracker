@@ -7,10 +7,26 @@ export default function Preview() {
 
   const [thumbnail, setThumbnail] = useState("");
   const canvasRef = useRef(null);
+  const imgRef = useRef(null);
+  const [imageReady, setImageReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [targetColor, setTargetColor] = useState("#ff0000");
   const [tolerance, setTolerance] = useState(75);
+
+  useEffect(() => {
+    if(!thumbnail) return;
+    setImageReady(false);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      imgRef.current = img;
+      setImageReady(true);
+    };
+    console.log('image loaded:', imgRef.current.naturalWidth, 'x', imgRef.current.naturalHeight)
+    img.src = thumbnail;
+
+  },[thumbnail]);
 
   useEffect(() => {
     getThumbnail(filename)
@@ -32,6 +48,8 @@ export default function Preview() {
   if (error) {
     return <p>Could not load thumbnail: {error}</p>
   }
+
+
 
   return (
   <div className="space-y-6">
