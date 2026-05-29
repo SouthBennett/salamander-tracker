@@ -23,10 +23,22 @@ export default function Preview() {
       imgRef.current = img;
       setImageReady(true);
     };
-    console.log('image loaded:', imgRef.current.naturalWidth, 'x', imgRef.current.naturalHeight)
     img.src = thumbnail;
 
   },[thumbnail]);
+
+  useEffect(() => {
+    console.log("rewdrawing");
+    if (!imageReady) return;
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    if (!img || !canvas) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+  }, [imageReady, targetColor, tolerance]);
 
   useEffect(() => {
     getThumbnail(filename)
@@ -40,6 +52,7 @@ export default function Preview() {
       });
   }, [filename])
 
+  
   if (loading) {
     return(
       <p>Loading thumbnail...</p>
@@ -48,8 +61,6 @@ export default function Preview() {
   if (error) {
     return <p>Could not load thumbnail: {error}</p>
   }
-
-
 
   return (
   <div className="space-y-6">
@@ -98,7 +109,7 @@ export default function Preview() {
          
       </div>
 
-      <div className='flex row' >
+      <div className='flex row gap-2' >
         <img 
           src={thumbnail} 
           alt={filename}
