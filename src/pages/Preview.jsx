@@ -14,6 +14,16 @@ export default function Preview() {
   const [targetColor, setTargetColor] = useState("#ff0000");
   const [tolerance, setTolerance] = useState(75);
 
+  function hexToRgb(colorString){
+    colorString = colorString.replace("#","");
+
+    return {
+      red: parseInt(colorString.substring(0,2), 16),
+      blue: parseInt(colorString.substring(2,4), 16),
+      green: parseInt(colorString.substring(4,6), 16),
+    }
+  }
+
   useEffect(() => {
     if(!thumbnail) return;
     setImageReady(false);
@@ -38,6 +48,40 @@ export default function Preview() {
     canvas.height = img.naturalHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const px = data.data;
+
+    for (let i = 0; i < px.length; i += 4) {
+      // px[i]     = red channel of this pixel (0-255)
+      // px[i + 1] = green channel
+      // px[i + 2] = blue channel
+      // px[i + 3] = alpha (transparency, usually leave alone)
+    
+      const target = hexToRgb(targetColor);
+      // console.log(target);
+
+
+      const red = px[i];
+      const green = px[i + 1];
+      const blue = px[i + 2];
+
+      const distance = Math.sqrt(
+        Math.pow(red - target.red, 2) + Math.pow(green - target.green, 2) + Math.pow(blue - target.blue, 2)
+      );
+
+      if(distance <= Number(tolerance)){
+        px[1] = 255;
+        px[i +1] = 255;
+        px[i+2] =255;
+      } else {
+        px[i] = 0;
+        px[i + 1] = 0;
+        px[i + 2] = 0;
+      }
+
+    }
+
+    ctx.putImageData(data, 0, 0);
   }, [imageReady, targetColor, tolerance]);
 
   useEffect(() => {
@@ -97,11 +141,11 @@ export default function Preview() {
             <input 
               type="range" 
               min="0"
-              max="100"
+              max="255"
               value={tolerance}
               onChange={(e) => {
                 console.log(e.target.value)
-                setTolerance(e.target.value)}}
+                setTolerance(Number(e.target.value))}}
             />
             <span>{tolerance}</span>
           </div>
