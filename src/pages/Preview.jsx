@@ -13,6 +13,9 @@ export default function Preview() {
   const [error, setError] = useState(null);
   const [targetColor, setTargetColor] = useState("#ff0000");
   const [tolerance, setTolerance] = useState(75);
+  const [jobId, setJobId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   function hexToRgb(colorString){
     colorString = colorString.replace("#","");
@@ -108,6 +111,9 @@ export default function Preview() {
 
   async function handleProcessVideo() {
     try {
+      setSubmitting(true);
+      // await new Promise(resolve => setTimeout(resolve, 3000));
+      setSubmitError(null);
       const colorWithoutHash = targetColor.replace("#", "");
   
       const response = await fetch(
@@ -125,9 +131,13 @@ export default function Preview() {
         throw new Error(data.error || "Could not start processing job");
       }
   
+      setJobId(data.jobID);
       console.log("Job started:", data.jobID);
-  
+      setSubmitting(false);
+
     } catch (error) {
+      setSubmitting(false);
+      setSubmitError(error.message);
       console.error("Error starting processing job:", error);
     }
   }
@@ -197,10 +207,19 @@ export default function Preview() {
     
 <button
 onClick={handleProcessVideo}
+disabled={submitting}
 className=" bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold
   px-6 py-3 rounded-lg shadow-md transition-all duration-200 cursor-pointer mt-4">
-Process Video with These Settings
+{submitting ? "Starting Job" : "Process Video with These Settings"}
 </button>
+
+<p>Job ID: {jobId}</p>
+
+{submitError && (
+  <p className="text-red-500">
+    {submitError}
+  </p>
+)}
 
     <Link
       to="/videos"
