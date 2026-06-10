@@ -19,8 +19,8 @@ export default function Preview() {
 
     return {
       red: parseInt(colorString.substring(0,2), 16),
-      blue: parseInt(colorString.substring(2,4), 16),
-      green: parseInt(colorString.substring(4,6), 16),
+      green: parseInt(colorString.substring(2,4), 16),
+      blue: parseInt(colorString.substring(4,6), 16),
     }
   }
 
@@ -70,7 +70,7 @@ export default function Preview() {
       );
 
       if(distance <= Number(tolerance)){
-        px[1] = 255;
+        px[i] = 255;
         px[i +1] = 255;
         px[i+2] =255;
       } else {
@@ -104,6 +104,32 @@ export default function Preview() {
   }
   if (error) {
     return <p>Could not load thumbnail: {error}</p>
+  }
+
+  async function handleProcessVideo() {
+    try {
+      const colorWithoutHash = targetColor.replace("#", "");
+  
+      const response = await fetch(
+        `http://localhost:3000/api/process/${filename}?targetColor=${colorWithoutHash}&threshold=${tolerance}`,
+        {
+          method: "POST"
+        }
+      );
+  
+      const data = await response.json();
+      // console.log(data);
+
+  
+      if (!response.ok) {
+        throw new Error(data.error || "Could not start processing job");
+      }
+  
+      console.log("Job started:", data.jobID);
+  
+    } catch (error) {
+      console.error("Error starting processing job:", error);
+    }
   }
 
   return (
@@ -169,6 +195,12 @@ export default function Preview() {
       <p>{thumbnail}</p>
     </div>
     
+<button
+onClick={handleProcessVideo}
+className=" bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold
+  px-6 py-3 rounded-lg shadow-md transition-all duration-200 cursor-pointer mt-4">
+Process Video with These Settings
+</button>
 
     <Link
       to="/videos"
