@@ -110,7 +110,7 @@ export default function Preview() {
     const id = setInterval(async () => {
       try {
         console.log("polling...")
-        
+
         const response = await fetch(
           `http://localhost:3000/api/process/${jobId}/status`
         );
@@ -125,6 +125,7 @@ export default function Preview() {
         // console.log(data);
         // Job finished succesfully
         if (data.status === "done") {
+          console.log("Done response:", data);
           setCsvUrl(data.result);
           clearInterval(id);
         }
@@ -267,7 +268,16 @@ className=" bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-sem
 
 {/* Show the current job status */}
 {jobStatus && (
-  <p>Status: {jobStatus}</p>
+  <div>
+    <p>Status: {jobStatus}</p>
+
+    {/* progress indicator */}
+    {jobStatus === "processing" && (
+      <p className="animate-pulse">
+        Processing...
+      </p>
+    )}
+  </div>
 )}
 
 {/* Show processing errors */}
@@ -275,6 +285,18 @@ className=" bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-sem
   <p className="text-red-500">
     {jobError}
   </p>
+)}
+
+{/* Show csv link when processing is finished */}
+{csvUrl && (
+  <a 
+    href={`http://localhost:3000/results/${csvUrl.split("/").pop()}`}
+    target="_blank"
+    rel="noreferrer"
+    className="text-blue-500 underline block mt-2"
+  >
+    Download Results CSV
+  </a>
 )}
 
     <Link
