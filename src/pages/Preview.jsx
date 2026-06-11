@@ -16,6 +16,9 @@ export default function Preview() {
   const [jobId, setJobId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [jobStatus, setJobStatus] = useState(null); // state for the current status of the job
+  const [csvUrl, setCsvUrl] = useState(null); // state to store the csv path when the job is finished
+  const [jobError, setJobError] = useState(null); // state to store processing errors from endpoints
 
   function hexToRgb(colorString){
     colorString = colorString.replace("#","");
@@ -98,6 +101,47 @@ export default function Preview() {
         setLoading(false);
       });
   }, [filename])
+
+  // poll the backend while a processing job is active
+  useEffect(() => {
+    // dont start polling until we have a job ID
+    if(!jobId) return;
+
+    const id = setInterval(async () => {
+      try {
+        console.log("polling...")
+        
+        const response = await fetch(
+          `http://localhost:3000/api/process/${jobId}/status`
+        );
+
+        const data = await response.json();
+
+        console.log("Status response:", data);
+
+        // update the current job status
+        setJobStatus(data.status);
+
+        // console.log(data);
+        // Job finished succesfully
+        if (data.status === "done") {
+          setCsvUrl(data.result);
+          clearInterval(id);
+        }
+
+        // job fails
+        if (data.status === "error") {
+          setJobError(data.result);
+          clearInterval(id);
+        }
+      } catch (error){
+        console.error("Error checking job status", error);
+      }
+    }, 1500);
+
+    // Cleanup when component unmounts
+    return () => clearInterval(id);
+  }, [jobId]);
 
   
   if (loading) {
@@ -218,6 +262,18 @@ className=" bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-sem
 {submitError && (
   <p className="text-red-500">
     {submitError}
+  </p>
+)}
+
+{/* Show the current job status */}
+{jobStatus && (
+  <p>Status: {jobStatus}</p>
+)}
+
+{/* Show processing errors */}
+{jobError && (
+  <p className="text-red-500">
+    {jobError}
   </p>
 )}
 
