@@ -112,6 +112,25 @@ The front end will run on: http://localhost:5173
 
 ---
 
+## Color Palette
+
+This app uses the following colors througout the user interface
+
+1. Buttons
+    - Blue (bg-blue-600)
+2. Button Hover State
+    - Blue (bg-blue-500)
+3. Button Active State
+    - Blue (bg-blue-700)
+4. Page Background 
+    - Zinc (bg-zinc-900)
+5. Borders
+    - Zinc (border-zinc-700)
+6. Body Text
+    - Zinc (text-zinc-300)
+7. Error Messages
+    - Red (text-red-500)
+
 ## Project Board
 
 <p align="center">
