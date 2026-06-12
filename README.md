@@ -1,10 +1,22 @@
-#  Salamander Tracker Project
+#  Salamander Tracker
 
-##  Overview
+##  Project Overview
 
-This Salamander Tracker Project is a React-based frontend application deigned to help users detect salamanders in video footage using interactive tools and visual feedback. 
+This Salamander Tracker Project is a React-based frontend application designed to help users detect salamanders in video footage using interactive tools and visual feedback. 
 
 This project focuses on building a responsive user-friendly interface that communicates with a backend system developed seperately. While the backend handles video proecessing and detection logic, this frontend provides users with an intuitive way to interact with that data. 
+
+---
+
+## Features
+
+- Browse available salamander videos from the server.
+- View video thumbnails before processing.
+- Select a target color using a color picker.
+- Preview binarized images.
+- Submit processing jobs
+- Track job status
+- Download generated CSV results
 
 ---
 
@@ -21,9 +33,21 @@ The goal of this project is to
 
 ## Tech Stack
 
-- React (via Vite)
-- React Router for client-side routing
-- CSS and Tailwind
+- Frontend
+  - React 
+  - Vite
+  - React Router for client-side routing
+  - CSS and Tailwind CSS
+  - CORS
+
+- Backend
+  - Node.js
+  - Express
+
+- Processing
+  - Java
+  - Maven
+
 
 ---
 
