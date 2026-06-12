@@ -312,6 +312,8 @@ export default function Preview() {
   }
 
   async function handleProcessVideo() {
+    setJobError(null); // reset job error when processing a new video
+    setSubmitError(null); // reset submition error when processing a new video
     try {
       setSubmitting(true);
       // await new Promise(resolve => setTimeout(resolve, 3000));
@@ -370,7 +372,7 @@ export default function Preview() {
                 setTargetColor(e.target.value);
               }}
             />
-            <span>{targetColor}</span>
+            {/* <span>{targetColor}</span> */}
           </div>
           
           <div>

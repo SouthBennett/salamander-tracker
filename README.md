@@ -27,6 +27,12 @@ The goal of this project is to
 
 ---
 
+## Setup Instructions
+
+
+
+---
+
 ## Project Board
 
 <p align="center">
