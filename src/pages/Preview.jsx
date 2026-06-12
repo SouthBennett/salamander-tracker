@@ -2,6 +2,139 @@ import { Link, useParams } from 'react-router-dom';
 import { getThumbnail } from '../api.js';
 import {useEffect, useState , useRef} from 'react';
 
+
+
+
+function findLargestConnectedRegion(px, width, height) {
+
+  // Tracks which pixels have already been visited
+  const visited = new Set();
+
+  // Stores the current largest group found
+  let largestGroup = null;
+
+  
+  //  Converts an x,y position into the correct
+  //  location inside the RGBA pixel array.
+   
+  function getPixelIndex(x, y) {
+    return (y * width + x) * 4;
+  }
+
+  //   Checks if a pixel is white.
+
+  //   White pixels are considered "active"
+  //   and belong to a connected group.
+  function isActive(x, y) {
+    const i = getPixelIndex(x, y);
+
+    return (
+      px[i] === 255 &&
+      px[i + 1] === 255 &&
+      px[i + 2] === 255
+    );
+  }
+
+  // Loop through every pixel in the image
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+
+      const key = `${x},${y}`;
+
+      // Skip pixels that are already visited
+      // or are not active
+      if (visited.has(key) || !isActive(x, y)) {
+        continue;
+      }
+
+      // Stack used for DFS traversal
+      const stack = [{ x, y }];
+
+      // Mark starting pixel as visited
+      visited.add(key);
+
+      // Track group statistics
+      let size = 0;
+      let sumX = 0;
+      let sumY = 0;
+
+      
+        // DFS:
+        // Continue exploring until every connected
+        // white pixel has been visited.
+      
+      while (stack.length > 0) {
+
+        const current = stack.pop();
+
+        // Increase group size
+        size++;
+
+        // Add coordinates for centroid calculation
+        sumX += current.x;
+        sumY += current.y;
+
+        // Four-direction movement
+        const neighbors = [
+          { x: current.x + 1, y: current.y }, // right
+          { x: current.x - 1, y: current.y }, // left
+          { x: current.x, y: current.y + 1 }, // down
+          { x: current.x, y: current.y - 1 }  // up
+        ];
+
+        // Check every neighboring pixel
+        for (const neighbor of neighbors) {
+
+          const nx = neighbor.x;
+          const ny = neighbor.y;
+
+          const neighborKey = `${nx},${ny}`;
+
+          // Ensure neighbor:
+          // 1. Is inside image bounds
+          // 2. Has not been visited
+          // 3. Is a white pixel
+          if (
+            nx >= 0 &&
+            nx < width &&
+            ny >= 0 &&
+            ny < height &&
+            !visited.has(neighborKey) &&
+            isActive(nx, ny)
+          ) {
+
+            visited.add(neighborKey);
+
+            stack.push({
+              x: nx,
+              y: ny
+            });
+          }
+        }
+      }
+
+      // Calculate centroid of the group
+      const group = {
+        size,
+        centroidX: sumX / size,
+        centroidY: sumY / size
+      };
+
+      // Save this group if it is larger
+      // than any previous group found
+      if (
+        !largestGroup ||
+        group.size > largestGroup.size
+      ) {
+        largestGroup = group;
+      }
+    }
+  }
+
+  // Return the largest connected region found
+  return largestGroup;
+}
+
 export default function Preview() {
   const { filename } = useParams();
 
@@ -19,6 +152,8 @@ export default function Preview() {
   const [jobStatus, setJobStatus] = useState(null); // state for the current status of the job
   const [csvUrl, setCsvUrl] = useState(null); // state to store the csv path when the job is finished
   const [jobError, setJobError] = useState(null); // state to store processing errors from endpoints
+  const [largestGroupData, setLargestGroupData] = useState(null);
+
 
   function hexToRgb(colorString){
     colorString = colorString.replace("#","");
@@ -56,6 +191,7 @@ export default function Preview() {
     ctx.drawImage(img, 0, 0);
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const px = data.data;
+    // console.log(px);
 
     for (let i = 0; i < px.length; i += 4) {
       // px[i]     = red channel of this pixel (0-255)
@@ -88,6 +224,27 @@ export default function Preview() {
     }
 
     ctx.putImageData(data, 0, 0);
+    const largestGroup = findLargestConnectedRegion(
+      px,
+      canvas.width,
+      canvas.height
+    );
+    
+    if (largestGroup) {
+
+      setLargestGroupData(largestGroup)
+
+      ctx.beginPath();
+      ctx.arc(
+        largestGroup.centroidX,
+        largestGroup.centroidY,
+        8,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = "red";
+      ctx.fill();
+    }
   }, [imageReady, targetColor, tolerance]);
 
   useEffect(() => {
@@ -246,8 +403,15 @@ export default function Preview() {
           "
         />
         <canvas ref={canvasRef} className=' border 1px solid mt-6 rounded-xl' />
+        {largestGroupData && (
+          <div className="mt-4">
+            <p>Largest Group Size: {largestGroupData.size}</p>
+            <p>Centroid X: {largestGroupData.centroidX.toFixed(2)}</p>
+            <p>Centroid Y: {largestGroupData.centroidY.toFixed(2)}</p>
+          </div>
+        )}
       </div>
-      <p>{thumbnail}</p>
+      {/* <p>{thumbnail}</p> */}
     </div>
     
 <button
