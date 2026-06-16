@@ -146,13 +146,10 @@ export default function Preview() {
   const [error, setError] = useState(null);
   const [targetColor, setTargetColor] = useState("#ff0000");
   const [tolerance, setTolerance] = useState(75);
-  const [jobId, setJobId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-  const [jobStatus, setJobStatus] = useState(null); // state for the current status of the job
-  const [csvUrl, setCsvUrl] = useState(null); // state to store the csv path when the job is finished
-  const [jobError, setJobError] = useState(null); // state to store processing errors from endpoints
   const [largestGroupData, setLargestGroupData] = useState(null);
+  const [jobs, setJobs] = useState([]);
 
 
   function hexToRgb(colorString){
@@ -200,8 +197,6 @@ export default function Preview() {
       // px[i + 3] = alpha (transparency, usually leave alone)
     
       const target = hexToRgb(targetColor);
-      // console.log(target);
-
 
       const red = px[i];
       const green = px[i + 1];
@@ -261,45 +256,67 @@ export default function Preview() {
 
   // poll the backend while a processing job is active
   useEffect(() => {
-    // dont start polling until we have a job ID
-    if(!jobId) return;
-
-    const id = setInterval(async () => {
-      try {
-        console.log("polling...")
-
-        const response = await fetch(
-          `http://localhost:3000/api/process/${jobId}/status`
-        );
-
-        const data = await response.json();
-
-        console.log("Status response:", data);
-
-        // update the current job status
-        setJobStatus(data.status);
-
-        // console.log(data);
-        // Job finished succesfully
-        if (data.status === "done") {
-          console.log("Done response:", data);
-          setCsvUrl(data.result);
-          clearInterval(id);
-        }
-
-        // job fails
-        if (data.status === "error") {
-          setJobError(data.result);
-          clearInterval(id);
-        }
-      } catch (error){
-        console.error("Error checking job status", error);
-      }
+    if (jobs.length === 0) return;
+  
+    const interval = setInterval(async () => {
+  
+      const updatedJobs = await Promise.all(
+        jobs.map(async (job) => {
+  
+          if (
+            job.status === "done" ||
+            job.status === "error"
+          ) {
+            return job;
+          }
+  
+          try {
+  
+            const response = await fetch(
+              `http://localhost:3000/api/process/${job.jobId}/status`
+            );
+  
+            const data = await response.json();
+  
+            if (data.status === "done") {
+              return {
+                ...job,
+                status: "done",
+                result: data.result
+              };
+            }
+  
+            if (data.status === "error") {
+              return {
+                ...job,
+                status: "error",
+                error: data.error
+              };
+            }
+  
+            return {
+              ...job,
+              status: "processing"
+            };
+  
+          } catch (error) {
+  
+            return {
+              ...job,
+              status: "error",
+              error: error.message
+            };
+          }
+        })
+      );
+  
+      setJobs(updatedJobs);
+  
     }, 1500);
-
-    // Cleanup when component unmounts
-    return () => clearInterval(id);
-  }, [jobId]);
+  
+    return () => clearInterval(interval);
+  
+  }, [jobs]);
 
   
   if (loading) {
@@ -312,7 +329,7 @@ export default function Preview() {
   }
 
   async function handleProcessVideo() {
-    setJobError(null); // reset job error when processing a new video
+
     setSubmitError(null); // reset submition error when processing a new video
     try {
       setSubmitting(true);
@@ -335,8 +352,17 @@ export default function Preview() {
         throw new Error(data.error || "Could not start processing job");
       }
   
-      setJobId(data.jobID);
       console.log("Job started:", data.jobID);
+      const newJob = {
+        jobId: data.jobID,
+        filename,
+        submittedAt: new Date().toLocaleTimeString(),
+        status: "processing",
+        result: null,
+        error: null
+      };
+      
+      setJobs(prevJobs => [...prevJobs, newJob]);
       setSubmitting(false);
 
     } catch (error) {
@@ -423,47 +449,62 @@ className=" bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-sem
   px-6 py-3 rounded-lg shadow-md transition-all duration-200 cursor-pointer mt-4">
 {submitting ? "Starting Job" : "Process Video with These Settings"}
 </button>
+<div className="mt-6 space-y-3">
+  <h2 className="text-xl font-bold">Processing Queue</h2>
 
-<p>Job ID: {jobId}</p>
+  {jobs.length === 0 && (
+    <p className="text-zinc-400">No jobs submitted yet.</p>
+  )}
 
-{submitError && (
-  <p className="text-red-500">
-    {submitError}
-  </p>
-)}
-
-{/* Show the current job status */}
-{jobStatus && (
-  <div>
-    <p>Status: {jobStatus}</p>
-
-    {/* progress indicator */}
-    {jobStatus === "processing" && (
-      <p className="animate-pulse">
-        Processing...
+  {jobs.map((job) => (
+    <div
+      key={job.jobId}
+      className="
+        border
+        border-zinc-700
+        rounded-lg
+        p-4
+        bg-zinc-900
+      "
+    >
+      <p>
+        <span className="font-semibold">File:</span> {job.filename}
       </p>
-    )}
-  </div>
-)}
 
-{/* Show processing errors */}
-{jobError && (
-  <p className="text-red-500">
-    {jobError}
-  </p>
-)}
+      <p>
+        <span className="font-semibold">Job ID:</span> {job.jobId}
+      </p>
 
-{/* Show csv link when processing is finished */}
-{csvUrl && (
-  <a 
-    href={`http://localhost:3000/results/${csvUrl.split("/").pop()}`}
-    target="_blank"
-    rel="noreferrer"
-    className="text-blue-500 underline block mt-2"
-  >
-    Download Results CSV
-  </a>
-)}
+      <p>
+        <span className="font-semibold">Status:</span> {job.status}
+      </p>
+      <p>Submitted: {job.submittedAt}</p>
+
+      {job.status === "processing" && (
+        <p className="animate-pulse text-yellow-400">
+          Processing...
+        </p>
+      )}
+
+      {job.status === "done" && job.result && (
+        <a
+          href={`http://localhost:3000/results/${job.result.split("/").pop()}`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-400 underline"
+        >
+          Download CSV
+        </a>
+      )}
+
+      {job.status === "error" && (
+        <p className="text-red-500">
+          {job.error || "Something went wrong"}
+        </p>
+      )}
+    </div>
+  ))}
+</div>
 
     <Link
       to="/videos"
