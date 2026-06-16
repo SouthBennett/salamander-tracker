@@ -4,7 +4,7 @@
 
 This Salamander Tracker Project is a React-based frontend application designed to help users detect salamanders in video footage using interactive tools and visual feedback. 
 
-This project focuses on building a responsive user-friendly interface that communicates with a backend system developed seperately. While the backend handles video proecessing and detection logic, this frontend provides users with an intuitive way to interact with that data. 
+This project focuses on building a responsive user-friendly interface that communicates with a backend system developed separately. While the backend handles video processing and detection logic, this frontend provides users with an intuitive way to interact with that data. 
 
 ---
 
@@ -66,7 +66,7 @@ This project requires two repositories:
   1. Salamander Tracker (Frontend)
   2. Centroid Finder (Backend and Video Processor)
 
-Both repositories must be cloned to local machine. 
+Both repositories must be cloned to your local machine. 
 
 Salamander Tracker: https://github.com/SouthBennett/salamander-tracker
 
@@ -77,11 +77,12 @@ Centroid Finder: https://github.com/SouthBennett/centroid-finder
 
 Navigate to the Centroid Finder project:
   1. Build the Java video processor
-  - in the terminal, cd processor
-  - mvn package on the command line and wait for  ("Build Success!")
+  - in the terminal, run:  cd processor
+  - In terminal, run:mvn package
+       on the command line and wait for  ("Build Success!")
   
   2. Start the backend server:
-  - in the terminal, cd into server
+  - in the terminal, navigate to server director, run: cd server
   - npm install
   - npm run dev
 
@@ -104,7 +105,7 @@ The front end will run on: http://localhost:5173
   1. Open the frontend in a web browser.
   2. Click on the videos tab.
   3. Select a Salamander Video.
-  4. Adjust the target color and tolerance settungs.
+  4. Adjust the target color and tolerance settings.
   5. Review the binarized preview image.
   6. Submit a processing job.
   7. Monitor job status while processing.
@@ -114,7 +115,7 @@ The front end will run on: http://localhost:5173
 
 ## Color Palette
 
-This app uses the following colors througout the user interface
+This app uses the following colors throughout the user interface
 
 1. Buttons
     - Blue (bg-blue-600)
