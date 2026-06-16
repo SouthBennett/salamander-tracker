@@ -439,7 +439,7 @@ export default function Preview() {
           </div>
         )}
       </div>
-      {/* <p>{thumbnail}</p> */}
+      <p>{thumbnail}</p>
     </div>
     
 <button

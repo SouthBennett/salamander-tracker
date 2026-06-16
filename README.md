@@ -16,6 +16,7 @@ This project focuses on building a responsive user-friendly interface that commu
 - Adjust color matching tolerance with a slider.
 - Preview image binarization settings before processing.
 - Submit video processing jobs with custom settings.
+- Processing queue that shows the job status, progress indicators and csv results.
 - Monitor processing job status.
 - Display processing progress indicators.
 - Handle processing failures with user-friendly error messages.
