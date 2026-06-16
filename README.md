@@ -78,13 +78,24 @@ Centroid Finder: https://github.com/SouthBennett/centroid-finder
 Navigate to the Centroid Finder project:
   1. Build the Java video processor
   - in the terminal, run:  cd processor
-  - In terminal, run:mvn package
+  - In terminal, run: mvn package
        on the command line and wait for  ("Build Success!")
   
   2. Start the backend server:
-  - in the terminal, navigate to server director, run: cd server
+  - create .env file in project root directory:
+  - copy and paste:
+      PORT=3000
+      VIDEO_DIR=../server/videos
+      RESULTS_DIR=../server/results
+      THUMBNAIL_DIR=../server/thumbnails
+      JAR_PATH=../processor/target/centroidFinder-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+
+  - in the terminal, return to root directory run: cd .. 
+  - navigate to server directory, run: cd server
   - npm install
   - npm run dev
+  - ctrl + click link in terminal 
 
   The backend will run on http://localhost:3000
 
